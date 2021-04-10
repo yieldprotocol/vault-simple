@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "@yield-protocol/utils/contracts/token/IERC20.sol";
+import "./BoringBatchable.sol";
 import "./interfaces/IFYDai.sol";
 import "./interfaces/ISpotOracle.sol";
 import "./interfaces/IRateOracle.sol";
@@ -20,7 +21,7 @@ library SafeCast {
     }
 }
 
-contract Vault {
+contract Vault is BoringBatchable {
     using DecimalMath for uint256;
     using SafeCast for uint256;
 

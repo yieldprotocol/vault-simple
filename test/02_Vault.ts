@@ -78,20 +78,52 @@ describe('Vault', function () {
     await loadFixture(fixture)
   })
 
-  it('user can get out of debt', async () => {
-    // Sign your chains
-    await weth.connect(userAcc).approve(vault.address, WAD)
-    // Need some collateral to get started
-    await vault.connect(userAcc).post(maturity, DAI_SPOT.mul(10)) // collateralize 10 DAI (in WETH)
-    // Let's get bankrupt
-    await vault.connect(userAcc).borrow(maturity, WAD.mul(10)) // borrow 10 DAI
-    // Pay day
-    await ethers.provider.send('evm_mine', [(await fyDai.maturity()).toNumber() + 10])
-    // Still not out of debt
-    await expect(vault.requireCollateralized(user, maturity)).to.be.revertedWith('Too much debt')
-    // Repay debt (...somehow?)
-    await vault.connect(userAcc).post(maturity, DAI_SPOT.mul(1)) // collateralize 1 DAI (in WETH)
-    // Alas
-    await vault.requireCollateralized(user, maturity)
+  describe('without batch', async () => {
+
+    let now: Number
+
+    beforeEach(async () => {
+      now = await ethers.provider.send('evm_snapshot', [])
+    })
+
+    afterEach(async () => {
+      await ethers.provider.send('evm_revert', [now])
+    })
+
+    it('user can get out of debt', async () => {
+      // Sign your chains
+      await weth.connect(userAcc).approve(vault.address, WAD)
+      // Need some collateral to get started
+      await vault.connect(userAcc).post(maturity, DAI_SPOT.mul(10)) // collateralize 10 DAI (in WETH)
+      // Let's get bankrupt
+      await vault.connect(userAcc).borrow(maturity, WAD.mul(10)) // borrow 10 DAI
+      // Pay day
+      await ethers.provider.send('evm_mine', [(await fyDai.maturity()).toNumber() + 10])
+      // Still not out of debt
+      await expect(vault.requireCollateralized(user, maturity)).to.be.revertedWith('Too much debt')
+      // Repay debt (...somehow?)
+      await vault.connect(userAcc).post(maturity, DAI_SPOT.mul(1)) // collateralize 1 DAI (in WETH)
+      // Alas
+      await vault.requireCollateralized(user, maturity)
+    })
+
+    describe('with batch', async () => {
+      it('user can batch', async () => {
+
+        await weth.connect(userAcc).approve(vault.address, DAI_SPOT.mul(10))
+        
+        expect(await vault.connect(userAcc).batch(
+          [
+            // collateralize 10 DAI (in WETH)
+            vault.interface.encodeFunctionData("post", [maturity, DAI_SPOT.mul(10)]),
+            // and then borrow them
+            vault.interface.encodeFunctionData("borrow", [maturity, WAD.mul(10)]),
+          ],
+          true
+        )).to.emit(vault, 'Borrowed').withArgs(maturity, user, WAD.mul(10))
+      })
+    })
+
   })
+
 })
