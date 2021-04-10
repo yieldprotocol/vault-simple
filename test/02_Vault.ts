@@ -54,7 +54,13 @@ describe('Vault', function () {
 
     await dai.mint(fyDai.address, WAD.mul(100))
 
-    vault = (await deployContract(ownerAcc, VaultArtifact, [dai.address, weth.address, spotOracle.address, rateOracle.address, [fyDai.address]])) as Vault
+    vault = (await deployContract(ownerAcc, VaultArtifact, [
+      dai.address,
+      weth.address,
+      spotOracle.address,
+      rateOracle.address,
+      [fyDai.address],
+    ])) as Vault
   }
 
   before(async () => {
@@ -88,5 +94,4 @@ describe('Vault', function () {
     // Alas
     await vault.requireCollateralized(user, maturity)
   })
-  
 })

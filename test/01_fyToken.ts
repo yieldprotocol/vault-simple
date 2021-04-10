@@ -56,7 +56,6 @@ describe('FYDai', function () {
   // TODO: Test mint and burn
 
   describe('after maturity', async () => {
-
     let now: Number
 
     beforeEach(async () => {
