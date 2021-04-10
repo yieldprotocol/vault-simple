@@ -79,7 +79,6 @@ describe('Vault', function () {
   })
 
   describe('without batch', async () => {
-
     let now: Number
 
     beforeEach(async () => {
@@ -109,21 +108,22 @@ describe('Vault', function () {
 
     describe('with batch', async () => {
       it('user can batch', async () => {
-
         await weth.connect(userAcc).approve(vault.address, DAI_SPOT.mul(10))
-        
-        expect(await vault.connect(userAcc).batch(
-          [
-            // collateralize 10 DAI (in WETH)
-            vault.interface.encodeFunctionData("post", [maturity, DAI_SPOT.mul(10)]),
-            // and then borrow them
-            vault.interface.encodeFunctionData("borrow", [maturity, WAD.mul(10)]),
-          ],
-          true
-        )).to.emit(vault, 'Borrowed').withArgs(maturity, user, WAD.mul(10))
+
+        expect(
+          await vault.connect(userAcc).batch(
+            [
+              // collateralize 10 DAI (in WETH)
+              vault.interface.encodeFunctionData('post', [maturity, DAI_SPOT.mul(10)]),
+              // and then borrow them
+              vault.interface.encodeFunctionData('borrow', [maturity, WAD.mul(10)]),
+            ],
+            true
+          )
+        )
+          .to.emit(vault, 'Borrowed')
+          .withArgs(maturity, user, WAD.mul(10))
       })
     })
-
   })
-
 })
