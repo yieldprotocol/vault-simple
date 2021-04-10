@@ -10,6 +10,7 @@
     "src/**/*.ts",
     "artifacts/**/*",
     "artifacts/**/*.json",
+    "deploy/**/*",
     "scripts/**/*",
     "tasks/**/*",
     "test/**/*",

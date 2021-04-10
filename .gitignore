@@ -40,3 +40,6 @@ crytic-export/
 # Typescript
 dist/
 
+# Local deployemnts
+deployments/hardhat/*
+
