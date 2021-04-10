@@ -1,6 +1,7 @@
 import *  as fs from 'fs'
 import * as path from 'path'
 
+import "@nomiclabs/hardhat-ethers";
 import '@nomiclabs/hardhat-waffle'
 import '@nomiclabs/hardhat-etherscan'
 import 'hardhat-abi-exporter'
@@ -104,4 +105,7 @@ module.exports = {
   etherscan: {
     apiKey: etherscanKey
   },
+  paths: {
+    deployments: 'deployments',
+  }
 }
