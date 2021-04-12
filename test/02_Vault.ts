@@ -32,7 +32,8 @@ describe('Vault', function () {
 
   const THREE_MONTHS = 3 * 30 * 24 * 60 * 60
   const WAD = BigNumber.from(10).pow(18)
-  const ETH_SPOT = BigNumber.from(2000) // 1 ETH ~ 2000 DAI
+  const RAY = BigNumber.from(10).pow(27)
+  const SPOT = RAY.mul(2000) // 1 ETH ~ 2000 DAI
   const DAI_SPOT = WAD.div(BigNumber.from(2000)) // 1 DAI ~ 0.0005 ETH
 
   async function fixture() {
@@ -42,7 +43,7 @@ describe('Vault', function () {
     rateOracle = (await deployContract(ownerAcc, RateOracleMockArtifact, [maturity])) as RateOracleMock
     spotOracle = (await deployContract(ownerAcc, SpotOracleMockArtifact, [])) as SpotOracleMock
 
-    await spotOracle.setSpot(ETH_SPOT)
+    await spotOracle.setSpot(SPOT)
 
     dai = (await deployContract(ownerAcc, ERC20MockArtifact, ['Dai', 'DAI'])) as ERC20Mock
     weth = (await deployContract(ownerAcc, ERC20MockArtifact, ['Weth', 'WETH'])) as ERC20Mock
