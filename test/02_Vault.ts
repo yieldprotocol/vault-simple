@@ -83,9 +83,18 @@ describe('Vault', function () {
     // Sign your chains
     await weth.connect(userAcc).approve(vault.address, WAD)
     // Need some collateral to get started
-    await vault.connect(userAcc).post(maturity, DAI_SPOT.mul(10)) // collateralize 10 DAI (in WETH)
+    const collateral = DAI_SPOT.mul(10)
+    expect(await vault.connect(userAcc).post(maturity, collateral)).to.emit(vault, 'Posted').withArgs(user, collateral).and.to.emit(weth, 'Transfer').withArgs(user, vault.address, collateral) // collateralize 10 DAI (in WETH)
+    expect(await vault.posted(user, maturity)).to.eq(collateral)
+
+    const debt = WAD.mul(10)
+    // Can't borrow from 6 months from now (no series)
+    await expect(vault.connect(userAcc).borrow(maturity.mul(2), debt)).to.be.revertedWith('Series not found')
+    // Can't borrow beyond common sense
+    await expect(vault.connect(userAcc).borrow(maturity, debt.mul(2))).to.be.revertedWith('Too much debt')
     // Let's get bankrupt
-    await vault.connect(userAcc).borrow(maturity, WAD.mul(10)) // borrow 10 DAI
+    expect(await vault.connect(userAcc).borrow(maturity, WAD.mul(10))).to.emit(vault, 'Borrowed').withArgs(maturity, user, debt).and.to.emit(fyDai, 'Transfer') .withArgs(ethers.constants.AddressZero, user, debt)// borrow 10 DAI
+    expect(await vault.debt(user, maturity)).to.eq(debt)
     // Pay day
     await ethers.provider.send('evm_mine', [(await fyDai.maturity()).toNumber() + 10])
     // Still not out of debt
