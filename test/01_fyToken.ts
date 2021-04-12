@@ -56,8 +56,15 @@ describe('FYDai', function () {
   // TODO: Test mint and burn
 
   describe('after maturity', async () => {
+    let now: Number
+
     beforeEach(async () => {
+      now = await ethers.provider.send('evm_snapshot', [])
       await ethers.provider.send('evm_mine', [(await fyDai.maturity()).toNumber()])
+    })
+
+    afterEach(async () => {
+      await ethers.provider.send('evm_revert', [now])
     })
 
     it('redeems fyDai for Dai', async () => {
