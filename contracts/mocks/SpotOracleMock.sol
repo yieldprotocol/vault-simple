@@ -9,6 +9,6 @@ contract SpotOracleMock is ISpotOracle {
     constructor () { }
 
     function setSpot(uint256 spot_) public {
-        spot = spot_;
+        spot = spot_ * 1e27;
     }
 }
